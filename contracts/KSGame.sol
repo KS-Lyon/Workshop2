@@ -10,6 +10,7 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 
 
 import "hardhat/console.sol";
+import "./libraries/Base64.sol";
 
 // Our contract inherits from ERC721, which is the standard NFT contract!
 contract KSGame is ERC721 {
@@ -36,24 +37,17 @@ contract KSGame is ERC721 {
   // A mapping from an address => the NFTs tokenId. Gives me an ez way
   // to store the owner of the NFT and reference it later.
   mapping(address => uint256) public nftHolders;
-
-//   ["Bulbizarre", "Salamèche", "Carapuce"]
-//     ["https://img.pokemondb.net/artwork/bulbasaur.jpg",
-//     "https://img.pokemondb.net/artwork/charmander.jpg", 
-//     "https://img.pokemondb.net/artwork/squirtle.jpg"]
-//     [150, 100, 200]                   
-//     [50, 60, 50]                      
-  constructor(
-    string[] memory characterNames,
-    string[] memory characterImageURIs,
-    uint[] memory characterHp,
-    uint[] memory characterAttackDmg
-    // Below, you can also see I added some special identifier symbols for our NFT.
-    // This is the name and symbol for our token, ex Ethereum and ETH. I just call mine
-    // Pokemons and POKE. Remember, an NFT is just a token!
-  )
-    ERC721("Pokemons", "POKE")
+            
+  constructor() ERC721("Pokemons", "POKE")
   {
+
+    string[3] memory characterNames = ["Bulbizarre", "Salameche", "Carapuce"];
+    string[3] memory characterImageURIs = ["https://img.pokemondb.net/artwork/bulbasaur.jpg",
+    "https://img.pokemondb.net/artwork/charmander.jpg", 
+    "https://img.pokemondb.net/artwork/squirtle.jpg"];
+    uint8[3] memory characterHp = [150, 100, 200];
+    uint8[3] memory characterAttackDmg = [50, 60, 50];
+
     for(uint i = 0; i < characterNames.length; i += 1) {
       defaultCharacters.push(CharacterAttributes({
         characterIndex: i,
@@ -103,4 +97,35 @@ contract KSGame is ERC721 {
     // Increment the tokenId for the next person that uses it.
     _tokenIds.increment();
   }
+
+  function tokenURI(uint256 _tokenId) public view override returns (string memory) {
+    CharacterAttributes memory charAttributes = nftHolderAttributes[_tokenId];
+
+    string memory strHp = Strings.toString(charAttributes.hp);
+    string memory strMaxHp = Strings.toString(charAttributes.maxHp);
+    string memory strAttackDamage = Strings.toString(charAttributes.attackDamage);
+
+    string memory json = Base64.encode(
+        bytes(
+        string(
+            abi.encodePacked(
+            '{"name": "',
+            charAttributes.name,
+            ' -- NFT #: ',
+            Strings.toString(_tokenId),
+            '", "description": "This is an unofficial NFT of a mighty Pokemon!", "image": "',
+            charAttributes.imageURI,
+            '", "attributes": [ { "trait_type": "Health Points", "value": ',strHp,', "max_value":',strMaxHp,'}, { "trait_type": "Attack Damage", "value": ',
+            strAttackDamage,'} ]}'
+            )
+        )
+        )
+    );
+
+    string memory output = string(
+        abi.encodePacked("data:application/json;base64,", json)
+    );
+    
+    return output;
+    }
 }
