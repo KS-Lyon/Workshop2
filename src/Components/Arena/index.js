@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import { CONTRACT_ADDRESS, transformCharacterData } from '../../constants';
-import myEpicGame from '../../utils/MyEpicGame.json';
+import KSGame from '../../utils/KSGame.json';
 import './Arena.css';
 import LoadingIndicator from '../LoadingIndicator'
 
@@ -28,7 +28,7 @@ const [showToast, setShowToast] = useState(false);
       const signer = provider.getSigner();
       const gameContract = new ethers.Contract(
         CONTRACT_ADDRESS,
-        myEpicGame.abi,
+        KSGame.abi,
         signer
       );
 

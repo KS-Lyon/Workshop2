@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import './SelectCharacter.css';
 import { ethers } from 'ethers';
 import { CONTRACT_ADDRESS, transformCharacterData } from '../../constants';
-import myEpicGame from '../../utils/MyEpicGame.json'
+import KSGame from '../../utils/KSGame.json'
 import LoadingIndicator from '../LoadingIndicator'
 /*
  * Don't worry about setCharacterNFT just yet, we will talk about it soon!
@@ -21,7 +21,7 @@ useEffect(() => {
     const signer = provider.getSigner();
     const gameContract = new ethers.Contract(
       CONTRACT_ADDRESS,
-      myEpicGame.abi,
+      KSGame.abi,
       signer
     );
 

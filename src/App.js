@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import './App.css';
 import twitterLogo from './assets/twitter-logo.svg';
 import SelectCharacter from './Components/SelectCharacter';
-import myEpicGame from './utils/MyEpicGame.json';
+import KSGame from './utils/KSGame.json';
 import { CONTRACT_ADDRESS, transformCharacterData } from './constants';
 import { ethers } from 'ethers';
 import Arena from './Components/Arena';
@@ -82,7 +82,7 @@ useEffect(() => {
     const signer = provider.getSigner();
     const gameContract = new ethers.Contract(
       CONTRACT_ADDRESS,
-      myEpicGame.abi,
+      KSGame.abi,
       signer
     );
 
