@@ -47,6 +47,8 @@ BigBoss public bigBoss;
   // A mapping from an address => the NFTs tokenId. Gives me an ez way
   // to store the owner of the NFT and reference it later.
   mapping(address => uint256) public nftHolders;
+    event CharacterNFTMinted(address sender, uint256 tokenId, uint256 characterIndex);
+    event AttackComplete(uint newBossHp, uint newPlayerHp);
             
   constructor() ERC721("Pokemons", "POKE")
   {
@@ -62,6 +64,14 @@ BigBoss public bigBoss;
     string memory bossImageURI = "https://pbs.twimg.com/media/EzBBTmsVgA0k2jJ.jpg";
     uint bossHp = 500;
     uint bossAttackDamage = 40;
+
+    bigBoss = BigBoss({
+            name: bossName,
+            imageURI: bossImageURI,
+            hp: bossHp,
+            maxHp: bossHp,
+            attackDamage: bossAttackDamage
+    });
 
     for(uint i = 0; i < characterNames.length; i += 1) {
       defaultCharacters.push(CharacterAttributes({
@@ -111,6 +121,7 @@ BigBoss public bigBoss;
 
     // Increment the tokenId for the next person that uses it.
     _tokenIds.increment();
+    emit CharacterNFTMinted(msg.sender, newItemId, _characterIndex);
   }
 
   function tokenURI(uint256 _tokenId) public view override returns (string memory) {
@@ -181,6 +192,29 @@ BigBoss public bigBoss;
         // Console for ease.
         console.log("Player attacked boss. New boss hp: %s", bigBoss.hp);
         console.log("Boss attacked player. New player hp: %s\n", player.hp);
+        emit AttackComplete(bigBoss.hp, player.hp);
+    }
+
+    function checkIfUserHasNFT() public view returns (CharacterAttributes memory) {
+        // Get the tokenId of the user's character NFT
+        uint256 userNftTokenId = nftHolders[msg.sender];
+        // If the user has a tokenId in the map, return their character.
+        if (userNftTokenId > 0) {
+            return nftHolderAttributes[userNftTokenId];
+        }
+        // Else, return an empty character.
+        else {
+            CharacterAttributes memory emptyStruct;
+            return emptyStruct;
+        }
+    }
+
+    function getAllDefaultCharacters() public view returns (CharacterAttributes[] memory) {
+        return defaultCharacters;
+    }
+
+    function getBigBoss() public view returns (BigBoss memory) {
+        return bigBoss;
     }
 
 }
