@@ -24,6 +24,16 @@ contract KSGame is ERC721 {
     uint attackDamage;
   }
 
+  struct BigBoss {
+    string name;
+    string imageURI;
+    uint hp;
+    uint maxHp;
+    uint attackDamage;
+    }
+
+BigBoss public bigBoss;
+
   // The tokenId is the NFTs unique identifier, it's just a number that goes
   // 0, 1, 2, 3, etc.
   using Counters for Counters.Counter;
@@ -47,6 +57,11 @@ contract KSGame is ERC721 {
     "https://img.pokemondb.net/artwork/squirtle.jpg"];
     uint8[3] memory characterHp = [150, 100, 200];
     uint8[3] memory characterAttackDmg = [50, 60, 50];
+
+    string memory bossName = "Team Rocket";
+    string memory bossImageURI = "https://pbs.twimg.com/media/EzBBTmsVgA0k2jJ.jpg";
+    uint bossHp = 500;
+    uint bossAttackDamage = 40;
 
     for(uint i = 0; i < characterNames.length; i += 1) {
       defaultCharacters.push(CharacterAttributes({
@@ -128,4 +143,44 @@ contract KSGame is ERC721 {
     
     return output;
     }
+
+    function attackBoss() public {
+        // Get the state of the player's NFT.
+        uint256 nftTokenIdOfPlayer = nftHolders[msg.sender];
+        CharacterAttributes storage player = nftHolderAttributes[nftTokenIdOfPlayer];
+
+        console.log("\nPlayer w/ character %s about to attack. Has %s HP and %s AD", player.name, player.hp, player.attackDamage);
+        console.log("Boss %s has %s HP and %s AD", bigBoss.name, bigBoss.hp, bigBoss.attackDamage);
+        
+        // Make sure the player has more than 0 HP.
+        require (
+            player.hp > 0,
+            "Error: character must have HP to attack boss."
+        );
+
+        // Make sure the boss has more than 0 HP.
+        require (
+            bigBoss.hp > 0,
+            "Error: boss must have HP to attack boss."
+        );
+        
+        // Allow player to attack boss.
+        if (bigBoss.hp < player.attackDamage) {
+            bigBoss.hp = 0;
+        } else {
+            bigBoss.hp = bigBoss.hp - player.attackDamage;
+        }
+
+        // Allow boss to attack player.
+        if (player.hp < bigBoss.attackDamage) {
+            player.hp = 0;
+        } else {
+            player.hp = player.hp - bigBoss.attackDamage;
+        }
+        
+        // Console for ease.
+        console.log("Player attacked boss. New boss hp: %s", bigBoss.hp);
+        console.log("Boss attacked player. New player hp: %s\n", player.hp);
+    }
+
 }
